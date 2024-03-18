@@ -18,8 +18,8 @@ if xy is not None:
     prediction=predict_image(xy)
 
     if prediction==1:
-        st.write("The image is a deepfake!")
+        st.info("The image is a deepfake!")
     else:
-        st.write("The image is not a deepfake.")
+        st.info("The image is not a deepfake.")
 else: 
     print("Error Processing image.")
