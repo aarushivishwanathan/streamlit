@@ -52,7 +52,7 @@ def predict_video(file):
 
         X=np.array(frames_pred)
 
-        model = load_model(r'2DCNN_model.h5')
+        model = load_model('./2DCNN_model.h5')
         pred=model.predict(X)
         print(pred)
 
