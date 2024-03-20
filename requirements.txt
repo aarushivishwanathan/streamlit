@@ -1,2 +1,3 @@
 opencv-python-headless
 mtcnn
+opencv-contrib-python
