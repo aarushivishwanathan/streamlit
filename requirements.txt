@@ -1,3 +1,6 @@
 opencv-contrib-python-headless
 mtcnn
 tensorflow
+streamlit
+numpy 
+keras
