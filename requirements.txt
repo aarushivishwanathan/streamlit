@@ -1,0 +1,7 @@
+streamlit 
+numpy
+os
+tempfile
+opencv-python
+mtcnn
+keras
