@@ -1,4 +1,2 @@
 tempfile
-opencv-python-headless
-mtcnn
-keras
+
