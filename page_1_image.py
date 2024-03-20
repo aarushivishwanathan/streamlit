@@ -104,5 +104,3 @@ if file is not None:
             st.error("The audio is a deepfake!", icon="🚨")
         else:
             st.success("The audio is not a deepfake.", icon="✅")
-else: 
-    st.write("Error Processing File.")
