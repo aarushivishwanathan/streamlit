@@ -7,66 +7,38 @@ from keras.models import load_model
 import librosa
 import streamlit as st
 
-def predict_image(file):
-    tfile = tempfile.NamedTemporaryFile(delete=False)
-    tfile.write(file.read())
-
-    detector = MTCNN()
-    faces = detector.detect_faces(tfile)
-
-    if faces:
-    # Sort faces based on confidence in descending order
-        faces = sorted(faces, key=lambda x: x['confidence'], reverse=True)
-
-        # Select the face with the highest confidence
-        selected_face = faces[0]
-        
-        x, y, w, h = selected_face['box']
-        face = tfile[y:y+h, x:x+w]
-
-        face = cv2.resize(face, (35, 35))
-        face = cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
-        ret, face = cv2.threshold(face, 127, 255, cv2.THRESH_BINARY) 
-        face=face/225 
-
-    model = load_model(r'C:\Sem 6 project\Models\2DCNN_model.h5')
-    pred=model.predict(face)
-
-    y_predicted=np.where(pred>0.5, 1,0)
-
-    return y_predicted
-
-def predict_video(file):
+def predict_video(tfile):
     # Initialize prediction result as None
-    tfile = tempfile.NamedTemporaryFile(delete=False)
-    tfile.write(file.read())
+    #tfile = tempfile.NamedTemporaryFile(delete=False)
+    #tfile.write(file.read())
 
     y_predicted = None
     
     frames_pred = []
     detector = MTCNN()
+    cap=cv2.VideoCapture(tfile)
     
-    with cv2.VideoCapture(tfile) as cap:
-        while True:
-            ret, frame = cap.read()
+    while True:
+        ret, frame = cap.read()
 
-            if not ret:
-                break
+        if not ret:
+            break
 
-            faces = detector.detect_faces(frame)
+        faces = detector.detect_faces(frame)
 
-            if faces:
-                faces = sorted(faces, key=lambda x: x['confidence'], reverse=True)
-                selected_face = faces[0]
-                x, y, w, h = selected_face['box']
-                face = frame[y:y+h, x:x+w]
+        if faces:
+            faces = sorted(faces, key=lambda x: x['confidence'], reverse=True)
+            selected_face = faces[0]
+            x, y, w, h = selected_face['box']
+            face = frame[y:y+h, x:x+w]
 
-                face = cv2.resize(face, (35, 35))
-                face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-                _, face = cv2.threshold(face, 127, 255, cv2.THRESH_BINARY) 
-                face = face / 255.0 
+            face = cv2.resize(face, (35, 35))
+            face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+            _, face = cv2.threshold(face, 127, 255, cv2.THRESH_BINARY) 
+            face = face / 255.0 
 
-                frames_pred.append(face)
+            frames_pred.append(face)
+    cap.release()
 
     X = np.array(frames_pred)
 
@@ -77,13 +49,43 @@ def predict_video(file):
     
     return y_predicted  
 
+def predict_image(file):
+    tfile=cv2.imread(file)
+    detector = MTCNN()
+    faces = detector.detect_faces(tfile)
+
+    if faces:
+    # Sort faces based on confidence in descending order
+        faces = sorted(faces, key=lambda x: x['confidence'], reverse=True)
+
+        # Select the face with the highest confidence
+        selected_face = faces[0]
+
+        x, y, w, h = selected_face['box']
+        face = tfile[y:y+h, x:x+w]
+
+        face = cv2.resize(face, (35, 35))
+        face = cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
+        ret, face = cv2.threshold(face, 127, 255, cv2.THRESH_BINARY) 
+        face=face/225 
+        face=face.reshape(1,35,35,1)
+
+    model = load_model(r'C:\Sem 6 project\Models\2DCNN_model.h5')
+    pred=model.predict(face)
+
+    y_predicted=np.where(pred>0.5, 1,0)
+
+    print(y_predicted)
+
+    return y_predicted
+
 def predict_audio(file):
-    tfile = tempfile.NamedTemporaryFile(delete=False)
-    tfile.write(file.read())
+    #tfile = tempfile.NamedTemporaryFile(delete=False)
+    #tfile.write(file.read())
 
     y_predicted = None
     
-    audio, sr = librosa.load(tfile, sr=16000, duration=6)
+    audio, sr = librosa.load(file, sr=16000, duration=6)
     mfccs = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=10)
     spectral_contrast = librosa.feature.spectral_contrast(y=audio, sr=sr, n_bands=6)
     zcr = librosa.feature.zero_crossing_rate(y=audio)
@@ -110,38 +112,38 @@ if file is not None:
     file_extension = get_file_extension(file)
     
     if file_extension in ['.jpg', '.png', '.jpeg']:
-        print("Processing Image")
+        st.write("Processing Image")
 
         prediction = predict_image(file)
         
         
         if prediction == 1:
-            print("The image is a deepfake!")
-        elif prediction==0:
-            print("The image is not a deepfake.")
+            st.error("The image is a deepfake!")
+        elif prediction == 0:
+            st.success("The image is not a deepfake.")
         else:
-            print('Error: Face not detected')
+            st.warning('Error: Face not detected')
             
     elif file_extension in ['.mp4', '.avi', '.mov']:
-        print("Processing Video")
+        st.write("Processing Video")
 
         prediction = predict_video(file)
 
         if prediction == 1:
-            print("The image is a deepfake!")
-        elif prediction==0:
-            print("The image is not a deepfake.")
+            st.error("The video is a deepfake!")
+        elif prediction == 0:
+            st.success("The video is not a deepfake.")
         else:
-            print('Error: Face not detected')
+            st.warning('Error: Face not detected')
     
     elif file_extension in ['.mp3', '.wav', '.flac']:
-        print("Processing Audio")
+        st.write("Processing Audio")
 
         prediction = predict_audio(file)
 
         if prediction == 1:
-            print("The audio is a deepfake!")
+            st.error("The audio is a deepfake!")
         else:
-            print("The audio is not a deepfake.")
+            st.success("The audio is not a deepfake.")
     else:
-        print("Unsupported file format.")
+        st.warning("Unsupported file format.")
