@@ -10,7 +10,7 @@ import streamlit as st
 def predict_video(tfile):
     return 1
 def predict_image(file):
-    return 1
+    return 0
 def predict_audio(file):
     return 
     
