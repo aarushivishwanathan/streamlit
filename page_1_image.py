@@ -12,12 +12,7 @@ def predict_video(tfile):
 def predict_image(file):
     return 1
 def predict_audio(file):
-    return 1
-def get_file_extension(file):
-    if source is not None:
-    st.write(source.name)
-    st.write("File extension:")
-    st.write(Path(source.name).suffix)
+    return 
     
 file = st.file_uploader("Upload a video file" )
 
