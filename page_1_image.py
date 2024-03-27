@@ -102,10 +102,11 @@ def predict_audio(file):
     return y_predicted
 
 def get_file_extension(file):
-    # Extract file extension from the uploaded file name
-    _, extension = os.path.splitext(file)
-    return extension.lower()
-
+    if source is not None:
+    st.write(source.name)
+    st.write("File extension:")
+    st.write(Path(source.name).suffix)
+    
 file = st.file_uploader("Upload a video file" )
 
 if file is not None:
