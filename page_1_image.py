@@ -25,15 +25,15 @@ if file is not None:
     #file_extension = get_file_extension(file)
     
     #if file_extension in ['.jpg', '.png', '.jpeg']:
-        st.write("Processing Image")
-
-        prediction = predict_image(file)
+    st.write("Processing Image")
     
-        if prediction == 1:
-            st.error("The image is a deepfake!")
-        elif prediction == 0:
-            st.success("The image is not a deepfake.")
-        else:
-            st.warning('Error: Face not detected')
-            
+    prediction = predict_image(file)
+    
+    if prediction == 1:
+        st.error("The image is a deepfake!")
+    elif prediction == 0:
+        st.success("The image is not a deepfake.")
+    else:
+        st.warning('Error: Face not detected')
+        
  
